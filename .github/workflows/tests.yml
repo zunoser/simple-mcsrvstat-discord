@@ -3,10 +3,10 @@ name: tests
 on:
   push:
     branches:
-      - main
+      - add-blue-map
   pull_request:
     branches:
-      - main
+      - add-blue-map
   workflow_dispatch:
 
 jobs:

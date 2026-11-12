@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-docker-image:
+    timeout-minutes: 360
     runs-on: ubuntu-latest
 
     permissions:
@@ -22,15 +23,19 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 
       - name: Build Docker Image
         run: |
           docker buildx create --use
           docker buildx inspect --bootstrap
-          docker buildx build -t ${{ env.DOCKER_BASE_NAME }}:${{ env.TAG_NAME }} --push .
+          docker buildx build -t "$DOCKER_BASE_NAME:$TAG_NAME" --push .
